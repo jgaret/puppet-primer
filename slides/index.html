@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Puppet Primer</title>
+
+		<meta name="description" content="Puppet fundamentals">
+		<meta name="author" content="Adé Mochtar">
+		<meta name="author" content="Wian Vos">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.min.css">
+		<link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+		<script>
+			document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+
+				<section>
+					<h1>Puppet Primer</h1>
+					<h3>Getting started with Puppet</h3>
+					<p>
+						<small><a href="mailto:amochtar@xebia.com">Adé Mochtar</a> / <a href="mailto:wvos@xebia.com">Wian Vos</a></small>
+					</p>
+					<p>
+						<small><a href="https://github.com/xebia/puppet-primer">https://github.com/xebia/puppet-primer</a></small>
+					</p>
+				</section>
+
+				<section>
+					<section>
+						<h2>What is Puppet?</h2>
+						<p>
+							#Configuration Management
+						</p>
+					</section>
+					<section>
+						<h2>Standalone</h2>
+						<p>vs.</p>
+						<h2>Master / Agent</h2>
+					</section>
+					<section>
+						<h2>DSL</h2>
+						<p>Domain Specific Language</p>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Language Basics</h2>
+						<p>
+							Types => Providers
+						</p>
+						<img src="images/resources-providers.png" alt="Resources vs Providers">
+						<p>Specify once, use many times!!!</p>
+					</section>
+					<section>
+						<h2>Core Types</h2>
+						<ul>
+							<li>file</li>
+							<li>service</li>
+							<li>package</li>
+							<li>user</li>
+							<li>group</li>
+							<li>cron</li>
+							<li>and many many more....</li>
+						</ul>
+					</section>
+					<section>
+						<h2>Basic Resource Syntax</h2>
+						<pre><code contenteditable class="ruby">
+resource_type { 'title':
+  ensure      => present,
+  attribute_1 => 'value',
+  attribute_2 => 'another value',
+}
+						</code></pre>
+					</section>
+					<section>
+						<h2>Manifests</h2>
+						<p>primer.pp</p>
+						<pre><code contenteditable class="ruby">
+notify { 'Hello': }
+						</code></pre>
+						<p>will result in</p>
+						<pre><code contenteditable class="no-highlight">
+[default] Running Puppet with /tmp/vagrant-puppet/manifests/primer.pp
+notice: Hello
+
+notice: /Stage[main]//Notify[Hello]/message: defined 'message' as 'Hello'
+
+notice: Finished catalog run in 0.03 seconds
+						</code></pre>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Puppet CLI</h2>
+						<pre><code contenteditable class="no-highlight">
+$ puppet help
+Usage: puppet <subcommand> [options] <action> [options]
+
+Available subcommands:
+
+  apply     Apply Puppet manifests locally
+  describe  Display help about resource types
+  man       Display Puppet manual pages
+  module    Creates, installs and searches for modules on Forge
+  resource  The resource abstraction layer shell
+
+  ... and many more ....
+
+See 'puppet help &lt;subcommand&gt;' for help on a specific subcommand.
+						</code></pre>
+					</section>
+					<section>
+						<h2>Exercise: Using Vagrant</h2>
+						<pre><code contenteditable class="bash">
+$ git clone https://github.com/xebia/puppet-primer.git
+
+$ vagrant up
+
+$ vagrant provision
+Will run puppet apply primer.pp on VirtualBox image
+
+$ vagrant ssh
+						</code></pre>
+						<p>https://github.com/xebia/puppet-primer</p>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Exercise: Create a static file</h2>
+						<p>primer.pp</p>
+						<pre><code contenteditable class="ruby">
+file { 'testfile':
+	ensure	=> present,
+	path		=> '/tmp/puppet.txt',
+	content	=> 'Puppet FTW',
+}						</code></pre>
+					</section>
+
+					<section>
+						<h2>Facts</h2>
+						<p>Hostname? IP address?</p>
+						<p>&nbsp;</p>
+						<h3 class="fragment">Enter Facter</h3>
+						<p>&nbsp;</p>
+						<p class="fragment">
+							Extracts information from system ... <br/>
+							... and passes them as variables to puppet
+						</p>
+					</section>
+
+					<section>
+						<h2>Exercise: File with dynamic content</h2>
+						<pre><code contenteditable class="ruby">
+file { 'testfile':
+  ensure   => present,
+  path     => '/tmp/puppet.txt',
+  content  => "${hostname} ${ipaddress}",
+}
+						</code></pre>
+					</section>
+				</section>
+
+				<section>
+					<h2>Exercise: Create user</h2>
+					<pre><code contenteditable class="ruby">
+user { 'username':
+  uid          => '500',
+  gid          => 'system',
+  manage_home  => true,
+}
+					</code></pre>
+				</section>
+
+				<section>
+					<section>
+						<h2>Ordering</h2>
+						<p>Puppet DSL is declarative</p>
+						<p>Will execute at a consistent but <em>unpredictable</em> order</p>
+						<pre><code contenteditable class="ruby">
+notify { 'First': }
+notify { 'Second': }
+						</code></pre>
+					</section>
+					<section>
+						<h2>Ordering</h2>
+						<pre><code contenteditable class="ruby">
+notify { 'First': }
+notify { 'Second':
+  require  => Notify['First']
+}
+						</code></pre>
+						<p>shorthand:</p>
+						<pre><code contenteditable class="ruby">
+notify{ 'First': } -> notify {'Second': }
+						</code></pre>
+					</section>
+					<section>
+						<h2>Ordering</h2>
+						<p>
+							Four relationships
+							<ul>
+								<li>require (<code>-&gt;</code>)</li>
+								<li>before (<code>&lt;-</code>)</li>
+								<li>notify (<code>~&gt;</code>)</li>
+								<li>subscribe (<code>&lt;~</code>)</li>
+							</ul>
+						</p>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Installing packages</h2>
+						<p>&gt;30 providers: yum, rpm. apt, msi, apple, ...</p>
+						<p>Puppet will guess provider based on OS, but you can override</p>
+						<pre><code contenteditable class="ruby">
+package { 'my-package':
+  ensure    => present,
+  provider  => 'yum',
+}
+						</code></pre>
+					</section>
+					<section>
+						<h2>Exercise: Install Apache HTTPD</h2>
+						<pre><code contenteditable class="ruby">
+package { 'httpd':
+  ensure    => present,
+}
+						</code></pre>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Running Services</h2>
+						<p>Most platforms can run services</p>
+						<p>
+							Specify parameters for
+							<ul>
+								<li>start</li>
+								<li>stop</li>
+								<li>restart</li>
+								<li>status</li>
+								<li>start at boot (enabled)</li>
+							</ul>
+						</p>
+					</section>
+					<section>
+						<h2>Exercise: Start Apache and stop IPtables</h2>
+						<pre><code contenteditable class="ruby">
+service { 'httpd':
+  ensure   => running,
+  enabled  => true,
+}
+
+service { 'iptables':
+  ensure   => stopped,
+}
+						</code></pre>
+					</section>
+				</section>
+
+				<section>
+					<h2>Package/File/Service pattern</h2>
+					<pre><code contenteditable class="ruby">
+package { 'openssh-server':
+  ensure      => present,
+  before      => File['/etc/ssh/sshd_config'],
+}
+file { '/etc/ssh/sshd_config':
+  ensure      => file,
+  mode        => 600,
+  source      => '/root/learning-manifests/sshd_config',
+}
+service { 'sshd':
+  ensure      => running,
+  enable      => true,
+  hasrestart  => true,
+  hasstatus   => true,
+  subscribe   => File['/etc/ssh/sshd_config'],
+}
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Classes</h2>
+					<p>Class = collection of resources</p>
+					<pre><code contenteditable class="ruby">
+# defining class
+class someclass {
+  ...
+}
+
+# declaring (activating) class
+class { 'someclass': }
+# ... or ...
+include someclass
+					</code></pre>
+				</section>
+
+				<section>
+					<section>
+						<h2>Modules</h2>
+						<p>Classes are not really portable</p>
+						<p>Modules = bundles of code and data</p>
+						<p>Puppet autoloads modules, ready to include</p>
+					</section>
+					<section style="align: left">
+						<h2>Modules</h2>
+						<pre><code contenteditable class="no-highlight">
+my_module
+  manifests/
+    init.pp — Mandatory, class name must match module name
+    foo.pp — Class named my_module::foo.
+    impl/ — Directory name impacts names classes below
+      bar.pp — Class named my_module::impl::bar.
+  files/ — Contains static files
+  lib/ — Contains custom facts, resource types, etc
+  templates/ — Contains dynamic templates
+  tests/ — Contains examples
+						</code></pre>
+					</section>
+					<section>
+						<h2>my_module/manifests/</h2>
+						<p><code>manifests/init.pp</code> — Entry point for module</p>
+						<p>Must contain: <code>class my_module{...}</code></p>
+						<p>&nbsp;</p>
+						<p style="text-align:left;">
+							<code>manifests/foo.pp</code><br />
+							— <code>class my_module::foo { ... }</code>
+						</p>
+						<p style="text-align:left;">
+							<code>manifests/impl/bar.pp</code><br />
+							— <code>class my_module::impl::bar { ... }</code>
+						</p>
+					</section>
+					<section>
+						<h2>my_module/files/</h2>
+						<p>Static files: config files, installation binaries, etc</p>
+						<p>&nbsp;</p>
+						<p>Reference them from manifests</p>
+						<pre><code contenteditable class="ruby">
+file { '/etc/my_module/static.conf':
+  source => 'puppet:///modules/my_module/static.conf'
+}
+						</code></pre>
+					</section>
+					<section>
+						<h2>my_module/templates/</h2>
+						<p>Dynamically generated files, using variables &amp; facts</p>
+						<p>&nbsp;</p>
+						<p>Evaluate using <code>template()</code> function</p>
+						<pre><code contenteditable class="ruby">
+file { '/etc/my_module/dynamic.conf':
+  content => template("my_module/dynamic.conf.erb")
+}
+						</code></pre>
+					</section>
+					<section>
+						<h2>Example dynamic.conf.erb</h2>
+						<pre><code contenteditable>
+# my_module config
+# this file is managed by puppet
+# manual changes will be overwritten
+hostname = <%= @hostname %>
+listen_address = <%= @ipaddress %>
+listen_port = <% @port %>
+						</code></pre>
+					</section>
+				</section>
+
+				<section>
+					<h2>Exercise: Apache HTTPD module</h2>
+					<ul>
+						<li>Install HTTPD package</li>
+						<li>Create virtual hosts config file</li>
+						<li>Start &amp; enable service</li>
+						<li>Subscribe service to config file</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>But there is more!</h2>
+					<p>Puppet master; Parameterized classes; defined resources; ruby dsl; hiera; puppet db; catalog compilation; master agent security; External Node classifiers; site.pp; puppet.conf; exec's; puppet lint; rspec puppet; cucumber puppet; Custom types and providers; Parser functions; Puppet dashboard; custom facter plugins; plugin synchronisation; MCollective; Foreman; Puppet environments; Nodes; cloud provisioner; Virtual resources; exported resources; spaceship operator; mothership operator; MCollective plugins; Puppet reporting;</p>
+				</section>
+
+				<section>
+					<h1>Thanks!</h1>
+					<p>
+						<small><a href="mailto:amochtar@xebia.com">Adé Mochtar</a> / <a href="mailto:wvos@xebia.com">Wian Vos</a></small>
+					</p>
+					<p>
+						<small><a href="https://github.com/xebia/puppet-primer">https://github.com/xebia/puppet-primer</a></small>
+					</p>
+				</section>
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/showdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+					// { src: 'plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
