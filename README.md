@@ -11,7 +11,12 @@ Initialization
 --------------
 Download and add a CentOS 6.3 box for vagrant:
 
-    vagrant box add centos63 https://dl.dropbox.com/u/7225008/Vagrant/CentOS-6.3-x86_64-minimal.box
+    wget http://developer.nrel.gov/downloads/vagrant-boxes/CentOS-6.3-i386-v20130101.box
+    vagrant box add centos63-x86 CentOS-6.3-i386-v20130101.box
+
+Clone puppet-primer git repository:
+
+    git clone https://github.com/xebia/puppet-primer.git
 
 Start the image:
 
@@ -29,4 +34,3 @@ The following output will be shown when puppet runs successfully:
 Run puppet (again):
 
     vagrant provision
-
