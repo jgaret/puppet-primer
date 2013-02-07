@@ -45,16 +45,17 @@
 						<small><a href="mailto:amochtar@xebia.com">Adé Mochtar</a> / <a href="mailto:wvos@xebia.com">Wian Vos</a></small>
 					</p>
 					<p>
-						<small><a href="https://github.com/xebia/puppet-primer">https://github.com/xebia/puppet-primer</a></small>
+						<small>Code: <a href="https://github.com/xebia/puppet-primer">https://github.com/xebia/puppet-primer</a></small><br/>
+						<small>Slides: <a href="http://xebia.github.com/puppet-primer/slides">http://xebia.github.com/puppet-primer/slides</a></small>
 					</p>
 				</section>
 
 				<section>
 					<section>
 						<h2>What is Puppet?</h2>
-						<p>
-							#Configuration Management
-						</p>
+					</section>
+					<section>
+						<h2>#Configuration Management</h2>
 					</section>
 					<section>
 						<h2>Standalone</h2>
@@ -159,7 +160,7 @@ $ vagrant ssh
 						<pre><code contenteditable class="ruby">
 file { 'testfile':
 	ensure	=> present,
-	path		=> '/tmp/puppet.txt',
+	path	=> '/tmp/puppet.txt',
 	content	=> 'Puppet FTW',
 }						</code></pre>
 					</section>
@@ -192,9 +193,8 @@ file { 'testfile':
 					<h2>Exercise: Create user</h2>
 					<pre><code contenteditable class="ruby">
 user { 'username':
-  uid          => '500',
-  gid          => 'system',
-  manage_home  => true,
+  uid         => '1337',
+  managehome  => true,
 }
 					</code></pre>
 				</section>
@@ -239,7 +239,7 @@ notify{ 'First': } -> notify {'Second': }
 				<section>
 					<section>
 						<h2>Installing packages</h2>
-						<p>&gt;30 providers: yum, rpm. apt, msi, apple, ...</p>
+						<p>&gt;30 providers: yum, rpm, apt, msi, apple, ...</p>
 						<p>Puppet will guess provider based on OS, but you can override</p>
 						<pre><code contenteditable class="ruby">
 package { 'my-package':
@@ -269,7 +269,7 @@ package { 'httpd':
 								<li>stop</li>
 								<li>restart</li>
 								<li>status</li>
-								<li>start at boot (enabled)</li>
+								<li>start at boot (enable)</li>
 							</ul>
 						</p>
 					</section>
@@ -277,12 +277,12 @@ package { 'httpd':
 						<h2>Exercise: Start Apache and stop IPtables</h2>
 						<pre><code contenteditable class="ruby">
 service { 'httpd':
-  ensure   => running,
-  enabled  => true,
+  ensure  => running,
+  enable  => true,
 }
 
 service { 'iptables':
-  ensure   => stopped,
+  ensure  => stopped,
 }
 						</code></pre>
 					</section>
@@ -311,55 +311,57 @@ service { 'sshd':
 				</section>
 
 				<section>
-					<h2>Classes</h2>
-					<p>Class = collection of resources</p>
-					<pre><code contenteditable class="ruby">
+					<section>
+						<h2>Classes</h2>
+						<p>Class = collection of resources</p>
+						<pre><code contenteditable class="ruby">
 # defining class
 class someclass {
-  ...
+  Package['foo'] -> File['bar'] ~> Service['baz']
+
+  package { 'foo': }
+  file { 'bar': }
+  service { 'baz': }
 }
 
 # declaring (activating) class
 class { 'someclass': }
 # ... or ...
 include someclass
-					</code></pre>
-				</section>
-
-				<section>
+						</code></pre>
+					</section>
 					<section>
 						<h2>Modules</h2>
 						<p>Classes are not really portable</p>
-						<p>Modules = bundles of code and data</p>
+						<p>Modules = bundles of classes, libs, files, etc</p>
 						<p>Puppet autoloads modules, ready to include</p>
 					</section>
 					<section style="align: left">
 						<h2>Modules</h2>
+						<p>Basisc module structure</p>
 						<pre><code contenteditable class="no-highlight">
 my_module
   manifests/
-    init.pp — Mandatory, class name must match module name
-    foo.pp — Class named my_module::foo.
-    impl/ — Directory name impacts names classes below
-      bar.pp — Class named my_module::impl::bar.
-  files/ — Contains static files
-  lib/ — Contains custom facts, resource types, etc
-  templates/ — Contains dynamic templates
-  tests/ — Contains examples
+    init.pp &ndash; Entry point for module; <em>Mandatory!</em>
+    foo.pp &ndash; Second class
+    impl/
+      bar.pp &ndash; Third class
+  files/ &ndash; Contains static files
+  lib/ &ndash; Contains custom facts, resource types, etc
+  templates/ &ndash; Contains dynamic templates
+  tests/ &ndash; Contains examples
 						</code></pre>
 					</section>
 					<section>
 						<h2>my_module/manifests/</h2>
-						<p><code>manifests/init.pp</code> — Entry point for module</p>
-						<p>Must contain: <code>class my_module{...}</code></p>
-						<p>&nbsp;</p>
 						<p style="text-align:left;">
+							<code>manifests/init.pp</code> <br />
+							&ndash; Entry point for module<br/>
+							&ndash; Must contain: <code>class my_module{...}</code><br/>
 							<code>manifests/foo.pp</code><br />
-							— <code>class my_module::foo { ... }</code>
-						</p>
-						<p style="text-align:left;">
+							&ndash; <code>class my_module::foo { ... }</code><br/>
 							<code>manifests/impl/bar.pp</code><br />
-							— <code>class my_module::impl::bar { ... }</code>
+							&ndash; <code>class my_module::impl::bar { ... }</code>
 						</p>
 					</section>
 					<section>
